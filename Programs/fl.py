@@ -20,11 +20,11 @@ new_args -= {'args', 'kwargs', 'file', 'dataset', 'ml', 'comm', 'fl', 'model', '
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", type=str, required=False, help="Config file")
-parser.add_argument("-d", "--dataset", type=str, required=False, help="Dataset name", choices=DATASETS.keys())
+parser.add_argument("-d", "--dataset", type=str, required=False, help="Dataset name", choices=DATASETS.keys(), default='IOT_DNL')
 parser.add_argument("-m", "--model", type=str, required=False, help="Model name", choices=MODELS.keys())
-parser.add_argument("--ml", type=str, required=False, help="ML framework", choices=ML.keys())
-parser.add_argument("-c", "--comm", type=str, required=False, help="Communication framework", choices=COMM.keys())
-parser.add_argument("--fl", type=str, required=False, help="FL framework", choices=FL.keys())
+parser.add_argument("--ml", type=str, required=False, help="ML framework", choices=ML.keys(), default='tf')
+parser.add_argument("-c", "--comm", type=str, required=False, help="Communication framework", choices=COMM.keys(), default='mpi')
+parser.add_argument("--fl", type=str, required=False, help="FL framework", choices=FL.keys(), default='ds')
 parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Verbose")
 for arg in new_args:
     parser.add_argument(f"--{arg}", type=str, required=False, help=f"{arg}")
@@ -36,6 +36,8 @@ if 'file' in parser_args:
     with open(parser_args['file'], 'r') as f:
         args = json.load(f)
         args.update(parser_args)
+if 'model' not in args:
+    args['model'] = args['dataset']
 
 all_args = {**args}
 
