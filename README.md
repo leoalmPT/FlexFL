@@ -1,6 +1,13 @@
 # FL_Benchmark
 This repository is a code basis to create and compare different FL approaches.
 
+## Before Installation
+Some datasets are downloaded from kaggle, so you need to create a kaggle account and key. After that create a file named `.env` in the root directory with the following content:
+```bash
+KAGGLE_USERNAME="<username>"
+KAGGLE_KEY="<key>"
+```
+
 ## Installation
 If you are on Windows, you can use the WSL to run the code. To install the WSL, you can use the following commands:
 ```bash
@@ -51,13 +58,6 @@ python3 -m venv venv
 source venv/bin/activate
 # install the requirements (it may take a while)
 pip install -r requirements.txt
-```
-
-## Post Installation
-Some datasets are downloaded from kaggle, so you need to create a kaggle account and key. After that create a file named `.env` in the root directory with the following content:
-```bash
-KAGGLE_USERNAME="<username>"
-KAGGLE_KEY="<key>"
 ```
 
 ## Usage
