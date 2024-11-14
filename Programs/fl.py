@@ -36,6 +36,8 @@ if 'file' in parser_args:
     with open(parser_args['file'], 'r') as f:
         args = json.load(f)
         args.update(parser_args)
+else:
+    args = parser_args
 if 'model' not in args:
     args['model'] = args['dataset']
 
