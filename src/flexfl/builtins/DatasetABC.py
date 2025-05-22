@@ -17,9 +17,10 @@ class DatasetABC(ABC):
 
     def __init__(self, *,
             data_folder: str = None,
+            data_name: str = None,
             **kwargs
         ) -> None:
-        self.name = self.__class__.__name__
+        self.name = self.__class__.__name__ if data_name is None else data_name
         self.metadata_file = f"{METADATA_FOLDER}/{self.name}.json"
         self.base_path = f"{DATA_FOLDER}/{self.name}"
         self.default_folder = f"{self.base_path}/_data"

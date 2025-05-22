@@ -55,6 +55,7 @@ class FederatedABC(ABC):
         main_metric: str = None,
         min_workers: int = 2,
         results_folder: str = None,
+        base_dir: str = None,
         save_model: bool = True,
         **kwargs
     ) -> None:
@@ -68,6 +69,7 @@ class FederatedABC(ABC):
         self.main_metric = main_metric
         self.min_workers = min_workers
         self.results_folder = results_folder
+        self.base_dir = base_dir
         self.save_model = save_model
         
         self.buffer = deque(maxlen=patience)
@@ -119,6 +121,8 @@ class FederatedABC(ABC):
         self.id = self.wm.c.id
         self.is_master = self.id == 0
         folder_name = self.wm.c.start_time.strftime('%Y-%m-%d_%H:%M:%S')
+        if self.base_dir is not None:
+            folder_name = self.base_dir
         if self.results_folder is not None:
             folder_name = f"{folder_name}/{self.results_folder}"
         self.base_path = f"{RESULTS_FOLDER}/{folder_name}"

@@ -1,6 +1,6 @@
 [project]
 name = "FlexFL"
-version = "0.2.8"
+version = "0.2.9"
 description = "Flexible Federated Learning Framework"
 readme = "README.md"
 authors = [
@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastparquet>=2024.11.0",
     "kaggle>=1.7.4.2",
     "keras>=3.9.0",
     "nbformat>=5.10.4",
@@ -15,6 +16,7 @@ dependencies = [
     "openpyxl>=3.1.5",
     "pandas>=2.2.3",
     "plotly>=6.0.1",
+    "pyarrow>=20.0.0",
     "python-dotenv>=1.0.1",
     "scikit-learn>=1.6.1",
     "tabulate>=0.9.0",
