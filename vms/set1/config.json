@@ -6,5 +6,7 @@
     
     "vm-cipassword": "flexfl",
     "vm-net0/rate": 50,
-    "vm-net0/bridge": "vmbr1"
+    "vm-net0/bridge": "vmbr1",
+    "vm-cores": 2,
+    "vm-memory": 4096
 }

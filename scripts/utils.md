@@ -2,7 +2,7 @@
 
 Create VMs
 ```bash
-uv run pxm-create -n 10
+uv run pxm-create -n 10 --config [path_to_config.json]
 ```
 
 Start VMs

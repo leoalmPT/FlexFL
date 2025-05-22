@@ -1,0 +1,12 @@
+{
+    "node": "bilbo",
+    "prefix": "fl-A",
+    "pool": "federatedLearning",
+    "template": 1000,
+    
+    "vm-cipassword": "flexfl",
+    "vm-net0/bridge": "vmbr1",
+    "vm-cores": 2,
+    "vm-memory": 4096,
+    "vm-net0/rate": 100
+}
