@@ -63,3 +63,8 @@ source scripts/set_ip.sh
 docker-compose -f requirements/kafka-compose.yml up -d
 docker-compose -f requirements/mqtt-compose.yml up -d
 ```
+
+Remove .gitignore from results
+```bash
+find results -name ".gitignore" -type f -delete
+```
