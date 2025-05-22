@@ -68,3 +68,8 @@ Remove .gitignore from results
 ```bash
 find results -name ".gitignore" -type f -delete
 ```
+
+Reset known_hosts
+```bash
+bash scripts/run_commands.sh -f scripts/known_hosts.sh
+```

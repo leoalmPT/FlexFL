@@ -38,7 +38,8 @@ def print_stats(protocol: str, fl: str):
 
 
 if __name__ == "__main__":
-    for protocol in PROTOCOLS:
-        for fl in FLS:
+    for fl in FLS:
+        for protocol in PROTOCOLS:
             print_stats(protocol, fl)
+        print("\n")
 
