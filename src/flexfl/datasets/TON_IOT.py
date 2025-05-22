@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import QuantileTransformer
 
 from flexfl.builtins.DatasetABC import DatasetABC
 
@@ -13,7 +13,7 @@ class TON_IOT(DatasetABC):
 
     @property
     def scaler(self):
-        return StandardScaler
+        return QuantileTransformer
 
 
     def download(self):
