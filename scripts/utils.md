@@ -25,6 +25,11 @@ Clear results
 bash scripts/run_commands.sh "rm -rf flexfl/results"
 ```
 
+Send dataset
+```bash
+bash scripts/send_dataset.sh [dataset]
+```
+
 Gather results
 ```bash
 bash scripts/gather_results.sh
