@@ -31,7 +31,7 @@ function run_command {
     local IP=$1
     local WORKER_ID=$2
     echo "Running command on $IP..."
-    COMMAND="cd flexfl && source venv/bin/activate && flexfl-res -s $WORKER_ID -i $INTERVAL -c $CHANCE -w 15 flexfl --results_folder worker_$WORKER_ID --ip \"$MASTER_IP\" --data_folder my_data $RUN_ARGS"
+    COMMAND="cd flexfl && source venv/bin/activate && flexfl-res -s $WORKER_ID -i $INTERVAL -c $CHANCE -w 10 flexfl --results_folder worker_$WORKER_ID --ip \"$MASTER_IP\" --data_folder my_data $RUN_ARGS"
     sshpass -p "$PASSWORD" ssh $ARGS "$USERNAME@$IP" "screen -dmS fl-worker-$WORKER_ID bash -c \"$COMMAND\""
 }
 
