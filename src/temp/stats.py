@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR = "results/scenario1"
+BASE_DIR = "results"
 FILE_NAME = "_analysis/worker_time.csv"
 RUN_TIME = "_analysis/run_time.csv"
 
@@ -18,7 +18,7 @@ def get_stats(df: pd.DataFrame) -> pd.DataFrame:
 def print_stats(protocol: str, fl: str):
     worker_times = []
     run_times = []
-    for i in range(1, 4):
+    for i in range(2, 4 + 1):
         folder = f"{BASE_DIR}/{protocol}_{fl}_{i}"
         if not Path(folder).exists():
             return
