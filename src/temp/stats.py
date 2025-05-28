@@ -1,12 +1,12 @@
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR = "results"
+BASE_DIR = "results/_scenario1"
 FILE_NAME = "_analysis/worker_time.csv"
 RUN_TIME = "_analysis/run_time.csv"
 
 PROTOCOLS = ["zenoh", "mqtt", "kafka", "mpi"]
-FLS = ["da", "ds", "cs"]
+FLS = ["da", "ds", "cs", "ca"]
 
 def get_stats(df: pd.DataFrame) -> pd.DataFrame:
     stats = pd.DataFrame(columns=df.columns)

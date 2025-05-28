@@ -82,10 +82,6 @@ bash scripts/run_on_vms.sh 0 0 --min_workers 7 --learning_rate 0.0001 --patience
 
 # With failures
 # Zenoh
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f01_1
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f01_2
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f01_3
-
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f05_1
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f05_2
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f05_3
@@ -94,11 +90,11 @@ bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patie
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f1_2
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f1_3
 
-# MQTT
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f01_1
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f01_2
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f01_3
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f2_1
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f2_2
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c zenoh --base_dir zenoh_f2_3
 
+# MQTT
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f05_1
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f05_2
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f05_3
@@ -107,11 +103,11 @@ bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patie
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f1_2
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f1_3
 
-# Kafka
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f01_1
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f01_2
-bash scripts/run_on_vms.sh 1 0.001 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f01_3
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f2_1
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f2_2
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c mqtt --base_dir mqtt_f2_3
 
+# Kafka
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f05_1
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f05_2
 bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f05_3
@@ -119,4 +115,8 @@ bash scripts/run_on_vms.sh 1 0.005 --min_workers 7 --learning_rate 0.0001 --pati
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f1_1
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f1_2
 bash scripts/run_on_vms.sh 1 0.01 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f1_3
+
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f2_1
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f2_2
+bash scripts/run_on_vms.sh 1 0.02 --min_workers 7 --learning_rate 0.0001 --patience 10 --fl da -c kafka --base_dir kafka_f2_3
 
