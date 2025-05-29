@@ -13,7 +13,7 @@ fi
 export $(grep -v '^#' .env | xargs)
 
 VM_LIST="scripts/ips.txt" # needs to end in empty line
-# VM_LIST="vms/ips.txt"
+VM_LIST="vms/ips.txt"
 USERNAME=$VM_USERNAME
 PASSWORD=$VM_PASSWORD
 ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"

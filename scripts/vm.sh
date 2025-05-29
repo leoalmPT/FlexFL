@@ -22,3 +22,5 @@ pip install flexfl[all]
 
 # check ntpsec
 # ntpq -p
+
+# sudo sysctl vm.swappiness=99
