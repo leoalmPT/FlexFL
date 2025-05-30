@@ -1,15 +1,12 @@
-from dotenv import load_dotenv
 import os
 import numpy as np
 
-load_dotenv()
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from flexfl.datasets.UNSW import UNSW
 from flexfl.datasets.TON_IOT import TON_IOT
 from flexfl.neural_nets.UNSW import UNSW as UNSW_NN
 from flexfl.neural_nets.TON_IOT import TON_IOT as TON_IOT_NN
-from flexfl.builtins.DatasetABC import DatasetABC
 from flexfl.ml_fw.Keras import Keras
 from flexfl.builtins.FederatedABC import METRICS_FN
 
