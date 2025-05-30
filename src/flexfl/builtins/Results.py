@@ -17,11 +17,11 @@ FAILED_WORKING = 3
 FAILED_AFTER_WORKING = 4
 
 STATUS_MAP = {
-    IDLE: "Idle",
-    WORKED: "Finished work",
+    IDLE: "Idle without fail",
+    WORKED: "Worked successfully<br>without failing",
     FAILED_IDLE: "Failed while idle",
     FAILED_WORKING: "Failed while working",
-    FAILED_AFTER_WORKING: "Failed after work"
+    FAILED_AFTER_WORKING: "Failed after<br>working successfully"
 }
 
 
@@ -501,7 +501,6 @@ class Results:
             range=[joins["timestamp"].min(), validations["end"].max()],
             tickvals=epoch_midpoints,
             ticktext=epoch_labels,
-            tickfont=dict(size=12),
             tickangle=0
         )
         fig.update_layout(
@@ -513,7 +512,8 @@ class Results:
                 x=0.5,
                 title_text="",
             ),
-            margin=dict(l=50, r=20, t=0, b=40),
+            margin=dict(l=50, r=10, t=0, b=40),
+            font=dict(size=16)
         )
         fig.write_image(f"{self.out}/timeline.pdf", width=1200, height=400)
         if show:
@@ -530,17 +530,19 @@ class Results:
             labels={"epoch": "Epoch", "loss": "Loss"},
         )
         fig1.update_layout(
-            margin=dict(l=60, r=20, t=20, b=50),
+            margin=dict(l=60, r=10, t=10, b=50),
+            font=dict(size=16),
         )
+        fig1.update_yaxes(title_standoff=5)
+        fig1.update_xaxes(title_standoff=5)
         fig2 = px.line(
             data,
             x="epoch",
             y=metrics,
             labels={"epoch": "Epoch", "value": "Value"},
         )
-        fig2.update_traces(mode="lines+markers")
         fig2.update_layout(
-            margin=dict(l=60, r=20, t=10, b=50),
+            margin=dict(l=60, r=10, t=10, b=50),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -549,7 +551,10 @@ class Results:
                 x=0.5,
                 title_text="",
             ),
+            font=dict(size=16),
         )
+        fig2.update_yaxes(title_standoff=5)
+        fig2.update_xaxes(title_standoff=5)
         fig1.write_image(f"{self.out}/validation_loss.pdf", width=600, height=400)
         fig2.write_image(f"{self.out}/validation_metrics.pdf", width=600, height=400)
         if show:
@@ -642,29 +647,35 @@ class Results:
             xaxis_title="Epoch",
             yaxis_title="Worker",
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                yanchor="middle",
+                y=0.5,
+                xanchor="left",
+                x=1.02,
                 title_text="",
             ),
-            margin=dict(l=0, r=20, t=0, b=40),
+            margin=dict(l=0, r=10, t=10, b=40),
+            font=dict(size=16),
         )
         fig.update_yaxes(title_standoff=5)
-        fig.update_xaxes(title_standoff=5)
-        fig.write_image(f"{self.out}/worker_status.pdf", width=400, height=400)
+        fig.update_xaxes(title_standoff=10)
+        fig.write_image(f"{self.out}/worker_status.pdf", width=600, height=400)
         if show:
             fig.show()
 
 
     def plot_all(self, show = True) -> None:
+        try:
+            self.plot_times(show)
+            self.save_results(
+                self.getp_worker_time,
+            )
+        except Exception as e:
+            print(f"Error plotting times: {e}")
         self.plot_timeline(show)
         self.plot_training(show)
-        self.plot_times(show)
         self.plot_status(show)
         self.save_results(
-            self.getp_worker_time,
             self.getp_metrics,
             self.get_run_time,
             self.get_overall_status,
