@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
+from sklearn.metrics import confusion_matrix
 import json
 from typing import Generator, Callable
 from datetime import datetime
@@ -680,4 +682,30 @@ class Results:
             self.get_run_time,
             self.get_overall_status,
         )
-        
+
+
+    def plot_cm(self, y_true: np.ndarray, y_pred: np.ndarray, labels: list = ["False", "True"], show = True) -> None:
+        cm = confusion_matrix(y_true, y_pred)
+        fig = go.Figure(data=go.Heatmap(
+            z=cm,
+            x=labels,
+            y=labels,
+            colorscale='Blues',
+            zmin=0,
+            zmax=np.max(cm),
+            xgap=1,
+            ygap=1,
+            text=cm,
+            texttemplate='%{text}',
+        ))
+        fig.update_layout(
+            xaxis_title='Predicted Label',
+            yaxis=dict(title="True label", autorange='reversed'),
+            margin=dict(l=10, r=10, t=10, b=10),
+            font=dict(size=12),
+        )
+        fig.update_xaxes(title_standoff=5)
+        fig.update_yaxes(title_standoff=5)
+        fig.write_image(f"{self.out}/confusion_matrix.pdf", width=600, height=400)
+        if show:
+            fig.show()
