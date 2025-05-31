@@ -1,0 +1,16 @@
+{
+    "comm": "zenoh",
+    "dataset": "ton_iot",
+    "message_layer": "Raw",
+    "fl": "da",
+    "ml": "Keras",
+    "info": "interval_{1}_chance_{0.01}",
+    "epochs": 20,
+    "patience": 20,
+    "min_workers": 28,
+    "base_dir": "zenoh_ton_iot_40",
+    "learning_rate": 0.0001,
+    "data_folder": "my_data",
+    "is_anchor": true,
+    "nn": "ton_iot"
+}
