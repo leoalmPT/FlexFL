@@ -2,7 +2,7 @@
 
 Create VMs
 ```bash
-uv run pxm-create -n 10
+uv run pxm-create -n 10 --config [path_to_config.json]
 ```
 
 Start VMs
@@ -23,6 +23,11 @@ bash scripts/run_commands.sh -v "source flexfl/venv/bin/activate && pip freeze" 
 Clear results
 ```bash
 bash scripts/run_commands.sh "rm -rf flexfl/results"
+```
+
+Send dataset
+```bash
+bash scripts/send_dataset.sh [dataset]
 ```
 
 Gather results
@@ -62,4 +67,14 @@ docker-compose -f requirements/mqtt-compose.yml down --volumes --remove-orphans
 source scripts/set_ip.sh 
 docker-compose -f requirements/kafka-compose.yml up -d
 docker-compose -f requirements/mqtt-compose.yml up -d
+```
+
+Remove .gitignore from results
+```bash
+find results -name ".gitignore" -type f -delete
+```
+
+Reset known_hosts
+```bash
+bash scripts/run_commands.sh -f scripts/known_hosts.sh
 ```

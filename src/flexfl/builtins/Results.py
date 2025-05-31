@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
+from sklearn.metrics import confusion_matrix
 import json
 from typing import Generator, Callable
 from datetime import datetime
@@ -17,11 +19,11 @@ FAILED_WORKING = 3
 FAILED_AFTER_WORKING = 4
 
 STATUS_MAP = {
-    IDLE: "Idle",
-    WORKED: "Finished work",
+    IDLE: "Idle without fail",
+    WORKED: "Worked successfully<br>without failing",
     FAILED_IDLE: "Failed while idle",
     FAILED_WORKING: "Failed while working",
-    FAILED_AFTER_WORKING: "Failed after work"
+    FAILED_AFTER_WORKING: "Failed after<br>working successfully"
 }
 
 
@@ -48,11 +50,13 @@ class Results:
         assert Path(results_folder).is_dir(), f"Results folder {results_folder} does not exist."
         self.results_folder = results_folder
         self.out = f"{results_folder}/_analysis"
-        Path(self.out).mkdir(parents=True, exist_ok=True)
         self.logs: dict[int, list[dict]] = {}
         self.log2node: dict[int, int] = {}
         self.setup_paths()
         self.n_workers = len(set(self.log2node.values())) - 1
+        if self.n_workers < 1:
+            raise ValueError(f"No workers found in results folder {self.results_folder}.")
+        Path(self.out).mkdir(parents=True, exist_ok=True)
 
 
     def process_path(self, path_: Path, node_id: int = None) -> None:
@@ -361,6 +365,31 @@ class Results:
     
 
     @lru_cache(maxsize=1)
+    def get_epochs(self) -> pd.DataFrame:
+        validations = self.get_validations()
+        epochs = [(
+            self.get_run_time().iloc[0]["Start"], 
+            validations.iloc[0]["start"]
+        )]
+        for i in range(1, len(validations)):
+            epochs.append((validations.iloc[i-1]["start"], validations.iloc[i]["start"]))
+        data = []
+        for i, (start, end) in enumerate(epochs):
+            data.append({
+                "epoch": i + 1,
+                "start": start,
+                "end": end,
+                "duration (s)": (end - start).total_seconds()
+            })
+        df = pd.DataFrame(data)
+        df = df.sort_values(by=["epoch"])
+        df = df.reset_index(drop=True)
+        df["start"] = pd.to_datetime(df["start"])
+        df["end"] = pd.to_datetime(df["end"])
+        return df
+    
+
+    @lru_cache(maxsize=1)
     def get_worker_status(self) -> pd.DataFrame:
         data = []
         validations = self.get_validations()
@@ -440,6 +469,9 @@ class Results:
         worktimes = worktimes.rename(columns={"nid": "worker"})
         worktimes = worktimes.sort_values(by=["worker"], ascending=False)
         worktimes["worker"] = worktimes["worker"].astype(str)
+        epochs = self.get_epochs()
+        epoch_midpoints = epochs["start"] + (epochs["end"] - epochs["start"]) / 2
+        epoch_labels = epochs["epoch"].astype(str).tolist()
         fig = px.timeline(
             worktimes,
             x_start="start", 
@@ -466,8 +498,13 @@ class Results:
         self.add_to_timeline(fig, failures, "timestamp", "nid", "red", "Failures")
         self.add_to_timeline(fig, joins, "timestamp", "nid", "green", "Joins")
         fig.update_yaxes(title="Workers", title_standoff=5)
-        fig.update_xaxes(title="Time", showticklabels=False)
-        fig.update_xaxes(range=[joins["timestamp"].min(), worktimes["end"].max()])
+        fig.update_xaxes(
+            title="Epochs",
+            range=[joins["timestamp"].min(), validations["end"].max()],
+            tickvals=epoch_midpoints,
+            ticktext=epoch_labels,
+            tickangle=0
+        )
         fig.update_layout(
             legend=dict(
                 orientation="h",
@@ -477,7 +514,8 @@ class Results:
                 x=0.5,
                 title_text="",
             ),
-            margin=dict(l=50, r=20, t=0, b=40),
+            margin=dict(l=50, r=10, t=0, b=40),
+            font=dict(size=16)
         )
         fig.write_image(f"{self.out}/timeline.pdf", width=1200, height=400)
         if show:
@@ -494,17 +532,19 @@ class Results:
             labels={"epoch": "Epoch", "loss": "Loss"},
         )
         fig1.update_layout(
-            margin=dict(l=60, r=20, t=20, b=50),
+            margin=dict(l=60, r=10, t=10, b=50),
+            font=dict(size=16),
         )
+        fig1.update_yaxes(title_standoff=5)
+        fig1.update_xaxes(title_standoff=5)
         fig2 = px.line(
             data,
             x="epoch",
             y=metrics,
             labels={"epoch": "Epoch", "value": "Value"},
         )
-        fig2.update_traces(mode="lines+markers")
         fig2.update_layout(
-            margin=dict(l=60, r=20, t=10, b=50),
+            margin=dict(l=60, r=10, t=10, b=50),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -513,7 +553,10 @@ class Results:
                 x=0.5,
                 title_text="",
             ),
+            font=dict(size=16),
         )
+        fig2.update_yaxes(title_standoff=5)
+        fig2.update_xaxes(title_standoff=5)
         fig1.write_image(f"{self.out}/validation_loss.pdf", width=600, height=400)
         fig2.write_image(f"{self.out}/validation_metrics.pdf", width=600, height=400)
         if show:
@@ -606,31 +649,63 @@ class Results:
             xaxis_title="Epoch",
             yaxis_title="Worker",
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                yanchor="middle",
+                y=0.5,
+                xanchor="left",
+                x=1.02,
                 title_text="",
             ),
-            margin=dict(l=0, r=20, t=0, b=40),
+            margin=dict(l=0, r=10, t=10, b=40),
+            font=dict(size=16),
         )
         fig.update_yaxes(title_standoff=5)
-        fig.update_xaxes(title_standoff=5)
-        fig.write_image(f"{self.out}/worker_status.pdf", width=400, height=400)
+        fig.update_xaxes(title_standoff=10)
+        fig.write_image(f"{self.out}/worker_status.pdf", width=600, height=400)
         if show:
             fig.show()
 
 
     def plot_all(self, show = True) -> None:
+        try:
+            self.plot_times(show)
+            self.save_results(
+                self.getp_worker_time,
+            )
+        except Exception as e:
+            print(f"Error plotting times: {e}")
         self.plot_timeline(show)
         self.plot_training(show)
-        self.plot_times(show)
         self.plot_status(show)
         self.save_results(
-            self.getp_worker_time,
             self.getp_metrics,
             self.get_run_time,
             self.get_overall_status,
         )
-        
+
+
+    def plot_cm(self, y_true: np.ndarray, y_pred: np.ndarray, labels: list = ["False", "True"], show = True) -> None:
+        cm = confusion_matrix(y_true, y_pred)
+        fig = go.Figure(data=go.Heatmap(
+            z=cm,
+            x=labels,
+            y=labels,
+            colorscale='Blues',
+            zmin=0,
+            zmax=np.max(cm),
+            xgap=1,
+            ygap=1,
+            text=cm,
+            texttemplate='%{text}',
+        ))
+        fig.update_layout(
+            xaxis_title='Predicted Label',
+            yaxis=dict(title="True label", autorange='reversed'),
+            margin=dict(l=10, r=10, t=10, b=10),
+            font=dict(size=12),
+        )
+        fig.update_xaxes(title_standoff=5)
+        fig.update_yaxes(title_standoff=5)
+        fig.write_image(f"{self.out}/confusion_matrix.pdf", width=600, height=400)
+        if show:
+            fig.show()
