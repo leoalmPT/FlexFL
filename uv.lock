@@ -319,7 +319,7 @@ wheels = [
 
 [[package]]
 name = "flexfl"
-version = "0.2.13"
+version = "0.2.14"
 source = { editable = "." }
 dependencies = [
     { name = "fastparquet" },
@@ -332,6 +332,7 @@ dependencies = [
     { name = "plotly" },
     { name = "pyarrow" },
     { name = "python-dotenv" },
+    { name = "rich" },
     { name = "scikit-learn" },
     { name = "tabulate" },
     { name = "wget" },
@@ -389,6 +390,7 @@ requires-dist = [
     { name = "plotly", specifier = ">=6.0.1" },
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "rich", specifier = ">=14.0.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "tensorflow-cpu", marker = "extra == 'all'", specifier = ">=2.18.0" },

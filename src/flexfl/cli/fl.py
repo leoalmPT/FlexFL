@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import logging
+from rich.console import Console
 
 from flexfl.cli.utils import get_modules_and_args, load_class
 
@@ -44,7 +45,7 @@ def main():
     parser.add_argument('-d', '--dataset', type=str, help="Dataset", choices=MODULES["datasets"].keys(), default="UNSW")
     parser.add_argument('-m', '--message_layer', type=str, help="Message layer", choices=MODULES["msg_layers"].keys(), default="Raw")
     parser.add_argument('--nn', type=str, help="Neural network", choices=MODULES["neural_nets"].keys())
-    parser.add_argument('--fl', type=str, help="Federated learning algorithm", choices=MODULES["fl_algos"].keys(), default="DecentralizedSync")
+    parser.add_argument('--fl', type=str, help="Federated learning algorithm", choices=MODULES["fl_algos"].keys(), default="DecentralizedAsync")
     parser.add_argument('--ml', type=str, help="Machine learning framework", choices=MODULES["ml_fw"].keys(), default="Keras")
     parser.add_argument('--info', type=str, help="Additional info", default=None)
 
@@ -83,8 +84,14 @@ def main():
 
     verbose = os.getenv("OMPI_COMM_WORLD_RANK", "0") == "0"
 
+    console = Console()
     if verbose:
-        print("Importing modules...")
+        status = console.status(
+            "[bold yellow]Importing modules...",
+            spinner="dots",
+            spinner_style="yellow"
+        )
+        status.start()
     comm_class = load_class(MODULES["comms"][args["comm"]])
     fl_class = load_class(MODULES["fl_algos"][args["fl"]])
     nn_class = load_class(MODULES["neural_nets"][args["nn"]])
@@ -93,7 +100,8 @@ def main():
     wm_class = load_class(MODULES["builtins"]["WorkerManager"])
     ml_class = load_class(MODULES["ml_fw"][args["ml"]])
     if verbose:
-        print("Modules imported.")
+        status.stop()
+        console.print("[bold green]Modules imported successfully!")
 
     f = fl_class(
         ml=ml_class(
