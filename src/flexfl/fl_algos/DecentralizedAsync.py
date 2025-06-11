@@ -56,6 +56,7 @@ class DecentralizedAsync(FederatedABC):
         self.status = self.console.status(
             f"[bold blue]Epoch 1/{self.epochs}[/bold blue]: Tasks done: [yellow]0[/yellow]/[yellow]{self.min_workers}[/yellow]...",
             spinner="dots",
+            spinner_style="blue"
         )
         self.status.start()
         Logger.log(Logger.START)
@@ -68,15 +69,16 @@ class DecentralizedAsync(FederatedABC):
         )
         self.working = set(pool)
         self.run_loop()
-        self.status.stop()
+        
         self.console.rule("[bold green]Training Finished[/bold green]")
-        with self.console.status(
+        self.status.update(
             "[bold yellow]Waiting for workers to disconnect...",
             spinner="dots",
             spinner_style="yellow"
-        ) as _:
-            self.wm.wait_for(self.finished)
-            self.wm.end()
+        )
+        self.wm.wait_for(self.finished)
+        self.wm.end()
+        self.status.stop()
         self.console.print("[bold cyan]Exiting...")
 
 
@@ -85,7 +87,9 @@ class DecentralizedAsync(FederatedABC):
         epoch = self.iteration // self.min_workers
         current = self.iteration % self.min_workers
         self.status.update(
-            f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]..."
+            f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+            spinner="dots",
+            spinner_style="blue"
         )
         if self.iteration % self.min_workers != 0:
             return
@@ -161,14 +165,19 @@ class DecentralizedAsync(FederatedABC):
             return
         self.console.print(f"[bold red]Task Incomplete[/bold red] - Worker ID: {worker_id} left")
         if len(self.wm.worker_info) < self.min_workers:
-            self.status.stop()
-            with self.console.status(
-                "[bold yellow]Waiting for workers...",
+            self.status.update(
+                "[bold yellow]Waiting for workers...[/bold yellow]",
                 spinner="dots",
                 spinner_style="yellow"
-            ) as _:
-                self.wm.wait_for_workers(self.min_workers)
-            self.status.start()
+            )
+            self.wm.wait_for_workers(self.min_workers)
+            epoch = self.iteration // self.min_workers
+            current = self.iteration % self.min_workers
+            self.status.update(
+                f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+                spinner="dots",
+                spinner_style="blue"
+            )
         self.send_work()
 
 
