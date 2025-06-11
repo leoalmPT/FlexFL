@@ -1,5 +1,6 @@
 import numpy as np
 import time
+from rich.console import Console
 
 from flexfl.builtins.FederatedABC import FederatedABC
 from flexfl.builtins.WorkerManager import WorkerManager
@@ -21,14 +22,18 @@ class DecentralizedAsync(FederatedABC):
         self.penalty = da_penalty
         self.iteration = 0
         self.working = set()
+        self.console = Console()
+        self.console.print(f"\nJoined with ID: {self.id}\n")
 
 
     def setup(self):
         if self.is_master:
             self.ml.load_data("val")
             self.wm.on_worker_disconnect = self.on_worker_disconnect
+            self.wm.on_new_worker = self.on_new_worker
         else:
             self.ml.load_data("train")
+            self.console.rule("[bold green]Starting Training")
         self.wm.set_callbacks(
             (Task.WORK, self.on_work),
             (Task.WORK_DONE, self.on_work_done)
@@ -41,8 +46,18 @@ class DecentralizedAsync(FederatedABC):
 
     def master_loop(self):
         self.weights = self.ml.get_weights()
-        self.wm.wait_for_workers(self.min_workers)
-        print("Starting...")
+        with self.console.status(
+            "[bold yellow]Waiting for workers...",
+            spinner="dots",
+            spinner_style="yellow"
+        ) as _:
+            self.wm.wait_for_workers(self.min_workers)
+        self.console.rule("[bold green]Starting Training")
+        self.status = self.console.status(
+            f"[bold blue]Epoch 1/{self.epochs}[/bold blue]: Tasks done: [yellow]0[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+            spinner="dots",
+        )
+        self.status.start()
         Logger.log(Logger.START)
         self.epoch_start = time.time()
         pool = self.wm.get_subpool(self.min_workers, self.subpool_fn)
@@ -53,17 +68,34 @@ class DecentralizedAsync(FederatedABC):
         )
         self.working = set(pool)
         self.run_loop()
-        self.wm.wait_for(self.finished)
-        self.wm.end()
+        self.status.stop()
+        self.console.rule("[bold green]Training Finished[/bold green]")
+        with self.console.status(
+            "[bold yellow]Waiting for workers to disconnect...",
+            spinner="dots",
+            spinner_style="yellow"
+        ) as _:
+            self.wm.wait_for(self.finished)
+            self.wm.end()
+        self.console.print("[bold cyan]Exiting...")
 
 
     def handle_iteration(self):
         self.iteration += 1
+        epoch = self.iteration // self.min_workers
+        current = self.iteration % self.min_workers
+        self.status.update(
+            f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]..."
+        )
         if self.iteration % self.min_workers != 0:
             return
-        epoch = self.iteration // self.min_workers
         self.ml.set_weights(self.weights)
-        self.validate(epoch, split="val", verbose=True)
+        metrics, loss, delta_time = self.validate(epoch, split="val", verbose=False)
+        self.console.print(
+            f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue] - Time: [bold yellow]{delta_time:.2f}[/bold yellow]s\n"
+            f"Loss: [bold yellow]{loss:.4f}[/bold yellow], "
+            f"Metrics: {', '.join([f'{k}: {v:.4f}' for k, v in metrics.items()])}\n"
+        )
         stop = self.early_stop() or epoch == self.epochs
         if stop:
             Logger.log(Logger.END)
@@ -71,16 +103,31 @@ class DecentralizedAsync(FederatedABC):
             
 
     def on_work(self, sender_id, weights):
-        Logger.log(Logger.WORKING_START)
-        self.ml.set_weights(weights)
-        self.ml.train(self.local_epochs)
-        new_weights = self.ml.get_weights()
-        Logger.log(Logger.WORKING_END)
-        self.wm.send(
-            node_id = WorkerManager.MASTER_ID, 
-            payload = new_weights, 
-            type_ = Task.WORK_DONE
+        self.console.print(f"[bold yellow]Received Task[/bold yellow] - Sender ID: {sender_id}")
+        with self.console.status(
+            "[bold yellow]Completing Task...[/bold yellow]",
+            spinner="dots",
+            spinner_style="yellow"
+        ) as _:
+            t1 = Logger.log(Logger.WORKING_START)
+            self.ml.set_weights(weights)
+            self.ml.train(self.local_epochs)
+            new_weights = self.ml.get_weights()
+            t2 = Logger.log(Logger.WORKING_END)
+            self.wm.send(
+                node_id = WorkerManager.MASTER_ID, 
+                payload = new_weights, 
+                type_ = Task.WORK_DONE
+            )
+        self.console.print(
+            f"[bold green]Task Completed[/bold green] - Time: [bold yellow]{t2['timestamp'] - t1['timestamp']:.2f}[/bold yellow]s\n"
         )
+
+
+    def end(self):
+        super().end()
+        if not self.is_master:
+            self.console.rule("[bold green]Training Finished[/bold green]")
 
 
     def on_work_done(self, sender_id, worker_weights):
@@ -95,8 +142,8 @@ class DecentralizedAsync(FederatedABC):
 
 
     def send_work(self):
-        avaliable_workers = set(self.wm.worker_info.keys()) - self.working
-        new_worker = self.round_robin_single(avaliable_workers)
+        available_workers = set(self.wm.worker_info.keys()) - self.working
+        new_worker = self.round_robin_single(available_workers)
         self.working.add(new_worker)
         self.wm.send(
             node_id = new_worker,
@@ -107,11 +154,21 @@ class DecentralizedAsync(FederatedABC):
 
     def on_worker_disconnect(self, worker_id):
         if worker_id not in self.working:
+            self.console.print(f"[bold yellow]Disconnection[/bold yellow] - Worker ID: {worker_id} left")
             return
         self.working.remove(worker_id)
         if not self.running:
             return
-        self.wm.wait_for_workers(self.min_workers)
+        self.console.print(f"[bold red]Task Incomplete[/bold red] - Worker ID: {worker_id} left")
+        if len(self.wm.worker_info) < self.min_workers:
+            self.status.stop()
+            with self.console.status(
+                "[bold yellow]Waiting for workers...",
+                spinner="dots",
+                spinner_style="yellow"
+            ) as _:
+                self.wm.wait_for_workers(self.min_workers)
+            self.status.start()
         self.send_work()
 
 
@@ -125,3 +182,7 @@ class DecentralizedAsync(FederatedABC):
 
     def finished(self):
         return len(self.working) == 0
+    
+
+    def on_new_worker(self, worker_id: int, worker_info: dict) -> None:
+        self.console.print(f"[bold green]New worker[/bold green] - Worker ID: {worker_id} joined")

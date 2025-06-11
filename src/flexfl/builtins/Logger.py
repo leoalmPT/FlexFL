@@ -42,13 +42,15 @@ class Logger:
 
 
     @staticmethod
-    def log(event: str, **kwargs):
+    def log(event: str, **kwargs) -> dict:
         timestamp = time.time()
-        Logger._logger.info(json.dumps({
+        data = {
             'event': event,
             'timestamp': timestamp,
             **kwargs
-        }))
+        }
+        Logger._logger.info(json.dumps(data))
+        return data
     
 
     @staticmethod

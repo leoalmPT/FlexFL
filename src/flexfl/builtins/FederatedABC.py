@@ -183,7 +183,7 @@ class FederatedABC(ABC):
         self.end()
 
 
-    def validate(self, epoch: int, split = "val", verbose = False) -> tuple[dict[str, float], float]:
+    def validate(self, epoch: int, split = "val", verbose = False) -> tuple[dict[str, float], float, float]:
         Logger.log(Logger.VALIDATION_START)
         x = getattr(self.ml, f"x_{split}")
         y = getattr(self.ml, f"y_{split}")
@@ -207,7 +207,7 @@ class FederatedABC(ABC):
         Logger.log(Logger.EPOCH, epoch=epoch, time=delta_time, loss=loss, **metrics)
         Logger.log(Logger.VALIDATION_END)
         self.epoch_start = time.time()
-        return metrics, loss
+        return metrics, loss, delta_time
     
 
     def early_stop(self) -> bool:
