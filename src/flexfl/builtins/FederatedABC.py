@@ -139,6 +139,7 @@ class FederatedABC(ABC):
 
     def setup_failure(self):
         def handle(signal, frame):
+            print()
             if self.is_master:
                 self.force_end()
             else:

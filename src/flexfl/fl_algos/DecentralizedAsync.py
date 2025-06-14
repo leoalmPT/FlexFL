@@ -69,7 +69,6 @@ class DecentralizedAsync(FederatedABC):
         )
         self.working = set(pool)
         self.run_loop()
-        
         self.console.rule("[bold green]Training Finished[/bold green]")
         self.status.update(
             "[bold yellow]Waiting for workers to disconnect...",
@@ -158,7 +157,8 @@ class DecentralizedAsync(FederatedABC):
 
     def on_worker_disconnect(self, worker_id):
         if worker_id not in self.working:
-            self.console.print(f"[bold yellow]Disconnection[/bold yellow] - Worker ID: {worker_id} left")
+            if self.running:
+                self.console.print(f"[bold red]Disconnection[/bold red] - Worker ID: {worker_id} left")
             return
         self.working.remove(worker_id)
         if not self.running:
