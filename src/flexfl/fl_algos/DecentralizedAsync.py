@@ -54,7 +54,7 @@ class DecentralizedAsync(FederatedABC):
             self.wm.wait_for_workers(self.min_workers)
         self.console.rule("[bold green]Starting Training")
         self.status = self.console.status(
-            f"[bold blue]Epoch 1/{self.epochs}[/bold blue]: Tasks done: [yellow]0[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+            f"[bold blue]Epochs done: 0/{self.epochs}[/bold blue] - Tasks done: [yellow]0[/yellow]/[yellow]{self.min_workers}[/yellow]...",
             spinner="dots",
             spinner_style="blue"
         )
@@ -86,7 +86,7 @@ class DecentralizedAsync(FederatedABC):
         epoch = self.iteration // self.min_workers
         current = self.iteration % self.min_workers
         self.status.update(
-            f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+            f"[bold blue]Epochs done: {epoch}/{self.epochs}[/bold blue] - Tasks done: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
             spinner="dots",
             spinner_style="blue"
         )
@@ -174,7 +174,7 @@ class DecentralizedAsync(FederatedABC):
             epoch = self.iteration // self.min_workers
             current = self.iteration % self.min_workers
             self.status.update(
-                f"[bold blue]Epoch {epoch}/{self.epochs}[/bold blue]: Tasks completed: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
+                f"[bold blue]Epochs done: {epoch}/{self.epochs}[/bold blue] - Tasks done: [yellow]{current}[/yellow]/[yellow]{self.min_workers}[/yellow]...",
                 spinner="dots",
                 spinner_style="blue"
             )
